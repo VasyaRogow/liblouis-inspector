@@ -1,0 +1,58 @@
+@(word: Word)
+
+@import helper._
+
+@main {
+    
+    <h1>Word: @word.text</h1>
+    
+    @if(flash.containsKey("success")) {
+        <div class="alert-message warning">
+            <strong>Done!</strong> @flash.get("success")
+        </div>
+    }
+
+    <p>Braille: <span class="braille">@word.braille</span></p>
+    <p>Expected: <span class="braille">@word.expected</span></p>
+    <p>Applied rules:</p>
+    <table class="rules">
+        <body>
+            @for(rule <- word.getSortedAppliedRules()) {
+                <tr>
+                    <td>
+                        @form(routes.Application.toggleRule(word.id)) {
+                            <input type="hidden" name="id" value="@rule.id"/>
+                            <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
+                                @if(rule.isReadOnly()) { disabled="disabled" }
+                                @if(rule.enabled) { checked="checked" } />
+                        }
+                    </td>
+                    <td>
+                        <span class="braille">@rule</span>
+                    </td>
+                </tr>
+            }
+        </body>
+    </table>
+
+    <p>Other rules:</p>
+    <table class="rules">
+        <body>
+            @for(rule <- word.getSortedUnappliedRules()) {
+                <tr>
+                    <td>
+                        @form(routes.Application.toggleRule(word.id)) {
+                            <input type="hidden" name="id" value="@rule.id"/>
+                            <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
+                                @if(rule.isReadOnly()) { disabled="disabled" }
+                                @if(rule.enabled) { checked="checked" } />
+                        }
+                    </td>
+                    <td>
+                        <span class="braille">@rule</span>
+                    </td>
+                </tr>
+            }
+        </body>
+    </table>
+}

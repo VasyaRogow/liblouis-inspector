@@ -1,0 +1,23 @@
+@(content: Html)
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>liblouis inspector</title>
+    </head>
+    <body>
+        
+        <header class="topbar">
+            <h1 class="fill">
+                <a href="@routes.Application.index()">
+                    liblouis inspector
+                </a>
+            </h1>
+        </header>
+        
+        <section id="main">
+            @content
+        </section>
+        
+    </body>
+</html>

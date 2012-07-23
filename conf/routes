@@ -1,0 +1,9 @@
+GET     /                           controllers.Application.index()
+
+GET     /words                      controllers.Application.listWords(p:Int ?= 0, s ?= "text", o ?= "asc", f ?= "")
+GET     /words/new                  controllers.Application.newWord()
+POST    /words                      controllers.Application.saveWord()
+GET     /words/:id                  controllers.Application.editWord(id:Long)
+POST    /words/:id                  controllers.Application.toggleRule(id:Long)
+
+GET     /assets/*file               controllers.Assets.at(path="/public", file)

@@ -1,0 +1,5 @@
+# Messages
+
+words.list.title={0,choice,0#No words|1#One word|1<{0,number,integer} words} found
+
+
