@@ -12,12 +12,12 @@
         </div>
     }
 
-    <p>Braille: <span class="braille">@word.braille</span></p>
-    <p>Expected: <span class="braille">@word.expected</span></p>
-    <p>Applied rules:</p>
-    <table class="rules">
+    <p><b>Braille</b>: <span class="braille">@word.braille</span></p>
+    <p><b>Expected</b>: <span class="braille">@word.expected</span></p>
+    <p><b>Applied rules</b>:</p>
+    <table>
         <body>
-            @for(rule <- word.getSortedAppliedRules()) {
+            @for(rule <- word.getAppliedRules()) {
                 <tr>
                     <td>
                         @form(routes.Application.toggleRule(word.id)) {
@@ -35,10 +35,10 @@
         </body>
     </table>
 
-    <p>Other rules:</p>
-    <table class="rules">
+    <p><b>Other rules</b>:</p>
+    <table>
         <body>
-            @for(rule <- word.getSortedUnappliedRules()) {
+            @for(rule <- word.getUnappliedRules()) {
                 <tr>
                     <td>
                         @form(routes.Application.toggleRule(word.id)) {
@@ -55,4 +55,11 @@
             }
         </body>
     </table>
+
+    <form action="@routes.Application.index()" method="GET">
+        <div class="actions">
+            <input type="submit" value="Apply changes"> or 
+            <a href="@routes.Application.cancelChanges()" class="btn">Cancel</a>
+        </div>
+    </form>
 }

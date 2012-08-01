@@ -24,53 +24,66 @@ public class Word extends Model implements Comparator<Rule> {
     public String expected;
 
     public String braille;
-    
-    @ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name="word_appliedrule")
-    public Set<Rule> appliedRules = new HashSet<Rule>();
-    
-    @ManyToMany(cascade=CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinTable(name="word_unappliedrule")
-    public Set<Rule> unappliedRules = new HashSet<Rule>();
 
-    public void translate() {
-        try {
-            for (Rule rule : unappliedRules) { rule.refresh(); }
-            for (Rule rule : appliedRules) { rule.refresh(); unappliedRules.add(rule); }
-            boolean again = false;
-            do {
-                again = false;
-                TranslationResult result = liblouis.translate(text);
-                braille = result.getBraille();
-                appliedRules.clear();
-                for (TranslationRule rule : result.getAppliedRules()) {
-                    if (rule.getOpcode() < Opcodes.CTO_NONE) {
-                        Rule instance = Rule.getInstance(rule);
-                        if (!instance.enabled) {
-                            rule.toggle();
-                            again = true;
-                            break;
-                        }
-                        appliedRules.add(instance);
+    public String oldBraille;
+
+    public boolean changed;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void translate() throws RuntimeException {
+        TranslationResult result = null;
+        boolean again = false;
+        do {
+            try {
+                result = liblouis.translate(text);
+            } catch (Exception e) {
+                throw new RuntimeException("Problem with liblouis", e);
+            }
+            braille = result.getBraille();
+            WordRule.resetWord(this);
+            again = false;
+            for (TranslationRule nativeRule : result.getAppliedRules()) {
+                if (nativeRule.getOpcode() < Opcodes.CTO_NONE) {
+                    Rule rule = Rule.getRule(nativeRule);
+                    if (!rule.enabled) {
+                        nativeRule.toggle();
+                        again = true;
+                        break;
                     }
+                    WordRule.applyRule(this, rule);
                 }
-            } while(again);
-            for (Rule rule : appliedRules) { unappliedRules.remove(rule); }
-        } catch (Exception e) {
-            e.printStackTrace();
+            }
+        } while(again);
+        if (oldBraille == null) {
+            oldBraille = braille;
         }
-    }
-    
-    public Iterator<Rule> getSortedAppliedRules() {
-        Set<Rule> sortedRules = new TreeSet<Rule>(this);
-        for (Rule rule : appliedRules) { rule.refresh(); sortedRules.add(rule); }
-        return sortedRules.iterator();        
+        changed = !oldBraille.equals(braille);
+        save();
     }
 
-    public Iterator<Rule> getSortedUnappliedRules() {
-        Set<Rule> sortedRules = new TreeSet<Rule>(this);
-        for (Rule rule : unappliedRules) { rule.refresh(); sortedRules.add(rule); }
-        return sortedRules.iterator();        
+    public void acceptChange() {
+        oldBraille = braille;
+        changed = false;
+        save();
+    }
+
+    public Iterator<Rule> getAppliedRules() {
+        Set<Rule> rules = new TreeSet<Rule>(this);
+        for (WordRule wordRule : WordRule.find.where().eq("word", this.id).eq("applied", true).findSet()) {
+            rules.add(Rule.find.byId(wordRule.rule));
+        }
+        return rules.iterator();
+    }
+
+    public Iterator<Rule> getUnappliedRules() {
+        Set<Rule> rules = new TreeSet<Rule>(this);
+        for (WordRule wordRule : WordRule.find.where().eq("word", this.id).eq("applied", false).findSet()) {
+            rules.add(Rule.find.byId(wordRule.rule));
+        }
+        return rules.iterator();
     }
 
     @Override
@@ -81,7 +94,11 @@ public class Word extends Model implements Comparator<Rule> {
     private static final Translator liblouis = new Translator("en-US-g2.ctb");
 
     public static Finder<Long,Word> find = new Finder<Long,Word>(Long.class, Word.class);
-    
+   
+    public static Set<Word> changedWords() {
+        return find.where().eq("changed", true).findSet();
+    }
+
     public static Page<Word> page(int page, int pageSize, String sortBy, String order, String filter) {
         return 
             find.where()

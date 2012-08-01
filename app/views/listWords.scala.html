@@ -57,7 +57,7 @@
         
     } else {
         
-        <table class="words zebra-striped">
+        <table>
             <thead>
                 <tr>
                     @header("text", "Text")
@@ -73,11 +73,11 @@
                         <td><span class="braille">@word.braille</span></td>
                         <td><span class="braille">@word.expected</span></td>
                         <td>
-                             @if(word.braille.equals(word.expected)) {
-                                 <span style="color: green"> ✔ </span>
-                             } else {
-                                 <span style="color: red"> ✘ </span>
-                             }
+                            @if(word.expected.equals(word.braille)) {
+                                <span style="color: green"> ✔ </span>
+                            } else {
+                                <span style="color: red"> ✘ </span>
+                            }
                         </td>
                     </tr>
                 }

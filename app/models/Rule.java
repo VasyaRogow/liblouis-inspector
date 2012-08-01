@@ -32,20 +32,26 @@ public class Rule extends Model {
     @Constraints.Required
     public String column2;
 
+    public boolean changed;
+
     public Long getId() {
         return id;
     }
-    
+
     public String toString() {
         return opcode + " " + column1 + " " + column2;
     }
     
-    public void toggle() {
+    public boolean toggle() {
+        if (isReadOnly()) { return false; }
         enabled = !enabled;
+        changed = !changed;
+        save();
         TranslationRule rule = rulesMap.get(id);
-        if (rule != null && rule.isEnabled() != enabled) {
+        if (rule.isEnabled() != enabled) {
             rule.toggle();
         }
+        return true;
     }
 
     public boolean isReadOnly() {
@@ -53,72 +59,74 @@ public class Rule extends Model {
             !opcode.equals("always") &&
             !opcode.equals("begword") &&
             !opcode.equals("endword") &&
-            !opcode.equals("midword")) {
+            !opcode.equals("midword") &&
+            !opcode.equals("midendword") &&
+            !opcode.equals("begmidword") &&
+            !opcode.equals("partword") &&
+            !opcode.equals("lowword") &&
+            !opcode.equals("sufword") &&
+            !opcode.equals("prfword")) {
             return true;
         }
         return !rulesMap.containsKey(id);
+    }
+
+    public void acceptChange() {
+        changed = false;
+        save();
     }
 
     private static final BiMap<Long,TranslationRule> rulesMap = HashBiMap.create();
 
     public static Finder<Long,Rule> find = new Finder<Long,Rule>(Long.class, Rule.class);
 
-    public static Rule getInstance(TranslationRule rule) {
+    public static Set<Rule> changedRules() {
+        return find.where().eq("changed", true).findSet();
+    }
+
+    public static Rule getRule(TranslationRule nativeRule) {
         
         // First search in cache
-        Rule instance = null;
-        Long ruleID = rulesMap.inverse().get(rule);
+        Long ruleID = rulesMap.inverse().get(nativeRule);
         if (ruleID != null) {
-            instance = find.byId(ruleID);
-            if (instance != null) {
-                return instance;
+            Rule rule = find.byId(ruleID);
+            if (rule != null) {
+                return rule;
             }
         }
         
-        String op = Opcodes.getName(rule.getOpcode());
+        String op = Opcodes.getName(nativeRule.getOpcode());
         String col1 = null;
         String col2 = null;
-        if (rule.getChars() != null) {
-            col1 = rule.getChars().toString();
-            col2 = rule.getDots().toString();
+        if (nativeRule.getChars() != null) {
+            col1 = nativeRule.getChars().toString();
+            col2 = nativeRule.getDots().toString();
         } else {
-            MultipassScript script = rule.getScript();
+            MultipassScript script = nativeRule.getScript();
             col1 = script.getTest();
             col2 = script.getAction();
         }
         
         // Then search in database
-        instance = find.where().like("opcode", op)
-                               .like("column1", col1)
-                               .like("column2", col2)
-                               .findUnique();
+        Rule rule = find.where().eq("opcode", op)
+                                .eq("column1", col1)
+                                .eq("column2", col2)
+                                .findUnique();
         
         // Otherwise create a new rule
-        if (instance == null) {
-            instance = new Rule();
-            instance.enabled = rule.isEnabled();
-            instance.opcode = op;
-            instance.column1 = col1;
-            instance.column2 = col2;
-            instance.save();
+        if (rule == null) {
+            rule = new Rule();
+            rule.enabled = nativeRule.isEnabled();
+            rule.opcode = op;
+            rule.column1 = col1;
+            rule.column2 = col2;
+            rule.changed = false;
+            rule.save();
         }
         
         // Put in cache
-        rulesMap.put(instance.getId(), rule);
-        return instance;
-    }
-
-    public int hashCode() {
-        return id.hashCode();
-    }
-
-    public boolean equals(Object o) {
-        try {
-            Rule that = (Rule)o;
-            return that.id.equals(this.id);
-        } catch (ClassCastException e) {
-            return false;
-        }
+        rulesMap.put(rule.id, nativeRule);
+        return rule;
     }
 }
 
