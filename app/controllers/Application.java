@@ -45,7 +45,7 @@ public class Application extends Controller {
         Word word = wordForm.get();
         word.save();
         word.translate();
-        flash("success", "Word " + wordForm.get().text + " has been added");
+        flash("success", "Word " + word.text + " has been added");
         return GO_HOME;
     }
 
@@ -65,6 +65,19 @@ public class Application extends Controller {
             flash("success", "Rule " + rule + " has been " + (rule.enabled?"en":"dis") + "abled");
         }
         return editWord(wordId);
+    }
+
+    public static Result deleteWord(Long wordId) {
+        Word word = Word.find.byId(wordId);
+        if (word == null) {
+            return badRequest("Could not find word");
+        }
+        for(WordRule wordRule : WordRule.find.where().eq("word", wordId).findSet()) {
+            wordRule.delete();
+        }
+        word.delete();
+        flash("success", "Word " + word.text + " has been deleted");
+        return GO_HOME;
     }
 
     public static Result newRule() {

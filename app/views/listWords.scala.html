@@ -64,6 +64,7 @@
                     @header("braille", "Braille")
                     @header("expected", "Expected")
                     <th/>
+                    <th/>
                 </tr>
             </thead>
             <tbody>
@@ -79,6 +80,7 @@
                                 <span style="color: red"> ✘ </span>
                             }
                         </td>
+                        <td><a href="@routes.Application.deleteWord(word.id)">(delete)</a></td>
                     </tr>
                 }
             </tbody>
