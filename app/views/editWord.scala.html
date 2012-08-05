@@ -1,65 +1,72 @@
-@(word: Word)
+@(word: Word, applied: Iterator[Rule], unapplied: Iterator[Rule])
 
 @import helper._
 
 @main {
     
-    <h1>Word: @word.text</h1>
+    <h2 class="page-header">Edit word
+        <span class="lead">@word.text</span>
+    </h2>
     
     @if(flash.containsKey("success")) {
-        <div class="alert-message warning">
+        <div class="alert alert-info">
+            <button class="close" data-dismiss="alert">×</button>
             <strong>Done!</strong> @flash.get("success")
         </div>
     }
 
-    <p><b>Braille</b>: <span class="braille">@word.braille</span></p>
-    <p><b>Expected</b>: <span class="braille">@word.expected</span></p>
-    <p><b>Applied rules</b>:</p>
-    <table>
-        <body>
-            @for(rule <- word.getAppliedRules()) {
-                <tr>
-                    <td>
-                        @form(routes.Application.toggleRule(word.id)) {
-                            <input type="hidden" name="id" value="@rule.id"/>
-                            <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
-                                @if(rule.isReadOnly()) { disabled="disabled" }
-                                @if(rule.enabled) { checked="checked" } />
-                        }
-                    </td>
-                    <td>
-                        <span class="braille">@rule</span>
-                    </td>
-                </tr>
-            }
-        </body>
-    </table>
+    @if(word.expected.equals(word.braille)) {
+        <p><span class="label">Braille</span> <code class="correct-braille">@word.braille</code></p>
+    } else {
+        <p><span class="label">Braille</span> <code class="wrong-braille">@word.braille</code></p>
+        <p><span class="label">Expected</span> <code class="expected-braille">@word.expected</code></p>
+    }
 
-    <p><b>Other rules</b>:</p>
-    <table>
-        <body>
-            @for(rule <- word.getUnappliedRules()) {
-                <tr>
-                    <td>
-                        @form(routes.Application.toggleRule(word.id)) {
-                            <input type="hidden" name="id" value="@rule.id"/>
-                            <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
-                                @if(rule.isReadOnly()) { disabled="disabled" }
-                                @if(rule.enabled) { checked="checked" } />
-                        }
-                    </td>
-                    <td>
-                        <span class="braille">@rule</span>
-                    </td>
-                </tr>
-            }
-        </body>
-    </table>
+    @if(applied.hasNext()) {
 
-    <form action="@routes.Application.index()" method="GET">
-        <div class="actions">
-            <input type="submit" value="Apply changes"> or 
-            <a href="@routes.Application.cancelChanges()" class="btn">Cancel</a>
-        </div>
+        <h3 class="page-header">Applied rules</h3>
+
+        <fieldset class="rules">
+            <div class="control-group">
+                @for(rule <- applied) {
+                    <form class="rule" action="@routes.Application.toggleRule(word.id)" method="POST">
+                        <input type="hidden" name="id" value="@rule.id"/>
+                        <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
+                                @if(rule.isReadOnly()) { disabled="disabled" }
+                            @if(rule.enabled) { checked="checked" }>
+                            <code class="rule">@rule</code>
+                            @if(rule.changed) { <span class="badge"> changed </span> }
+                        </input>
+                    </form>
+                }
+            </div>
+        </fieldset>
+    }
+
+    @if(unapplied.hasNext()) {
+
+        <h3 class="page-header">Other rules</h3>
+
+        <fieldset class="rules">
+            <div class="control-group">
+                @for(rule <- unapplied) {
+                    <form class="rule" action="@routes.Application.toggleRule(word.id)" method="POST">
+                        <input type="hidden" name="id" value="@rule.id"/>
+                        <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
+                                @if(rule.isReadOnly()) { disabled="disabled" }
+                                @if(rule.enabled) { checked="checked" }>
+                            <code class="rule">@rule</code>
+                            @if(rule.changed) { <i class="icon-exclamation-sign"> </i> }
+                        </input>
+                    </form>
+                }
+            </div>
+        </fieldset>
+    }
+
+    <form class="form" action="@routes.Application.index()" method="GET">
+        <input type="submit" value="Apply changes" class="btn btn-warning"
+                @if(Rule.changedRules().size == 0) { disabled="disabled" }>
+        or <a href="@routes.Application.cancelChanges()" class="btn">Cancel</a>
     </form>
 }

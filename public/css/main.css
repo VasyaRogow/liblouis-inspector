@@ -1,0 +1,75 @@
+html {
+    background: #eee;
+}
+
+header {
+    padding: 2em;
+    padding-left: 4em;
+    background: #eee;
+}
+
+header h1 {
+    color: black;
+    font-weight: normal;
+    font-size: 30px;
+}
+
+#new-word {
+    position: relative;
+}
+
+#new-word a {
+    position: absolute;
+    right: 0;
+}
+
+fieldset.rules {
+    margin-bottom: 15px;
+}
+
+form.rule {
+    margin: 7px;
+}
+
+table.words td {
+    border-top-color: #F7F7F7;
+}
+
+table.words td a.edit-word {
+    text-decoration: none;
+    display: block;
+    padding: 0px;
+    height: 100%;
+}
+
+a.edit-word > i {
+    visibility: hidden;
+}
+
+.page-header {
+    padding-bottom: 3px;
+}
+
+h3 {
+    font-weight: normal;
+}
+
+code.rule {
+    color: #25A4E8;
+}
+
+code.correct-braille {
+    color: #27B809;
+}
+
+code.wrong-braille {
+    color: #F74B11;
+}
+
+code.expected-braille {
+    color: black;
+}
+
+span.changed {
+    font-weight: normal;
+}

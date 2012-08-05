@@ -55,7 +55,7 @@ public class Application extends Controller {
             return badRequest("Could not find word");
         }
         word.translate();
-        return ok(views.html.editWord.render(word));
+        return ok(views.html.editWord.render(word, word.getAppliedRules(), word.getUnappliedRules()));
     }
 
     public static Result toggleRule(Long wordId) {
@@ -96,7 +96,7 @@ public class Application extends Controller {
         for (Word word : possiblyAffectedWords) {
             word.translate();
         }
-        return ok(views.html.changes.render());
+        return ok(views.html.changes.render(Rule.changedRules(), Word.changedWords()));
     }
 
     public static Result confirmChanges() {

@@ -2,23 +2,21 @@
 
 @import helper._
 
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
+
 @main {
     
-    <h1>Add a word</h1>
+    <h2 class="page-header">Add a word</h2>
     
-    @form(routes.Application.saveWord()) {
-        
+    <form class="form form-horizontal" action="@routes.Application.saveWord()" method="POST">
         <fieldset>
-        
             @inputText(wordForm("text"), '_label -> "Text")
             @inputText(wordForm("expected"), '_label -> "Expected braille")
-
         </fieldset>
         
         <div class="actions">
-            <input type="submit" value="Add this word" class="btn primary"> or 
+            <input type="submit" value="Add this word" class="btn btn-primary"> or 
             <a href="@routes.Application.listWords()" class="btn">Cancel</a> 
         </div>
-        
-    }
+    </form>
 }

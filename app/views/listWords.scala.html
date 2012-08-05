@@ -22,84 +22,81 @@
     
 }
 
-@header(key:String, title:String) = {
-    <th class="@key.replace(".","_") header @if(currentSortBy == key) @{if(currentOrder == "asc") "headerSortDown" else "headerSortUp"}">
-        <a href="@link(0, key)">@title</a>
-    </th>
-}
-
 @main {
-    
-    <h1 id="homeTitle">@Messages("words.list.title", currentPage.getTotalRowCount)</h1>
+
+    <h2 class="page-header">Words
+        <span class="badge">@currentPage.getTotalRowCount</span>
+    </h2>
 
     @if(flash.containsKey("success")) {
-        <div class="alert-message warning">
+        <div class="alert alert-info">
+            <button class="close" data-dismiss="alert">×</button>
             <strong>Done!</strong> @flash.get("success")
         </div>
-    } 
+    }
 
-    <div id="actions">
-        
-        <form action="@link(0, "text")" method="GET">
-            <input type="search" id="searchbox" name="f" value="@currentFilter" placeholder="Filter ...">
-            <input type="submit" id="searchsubmit" value="Filter" class="btn primary">
-        </form>
-
-        <a class="btn success" id="add" href="@routes.Application.newWord()">Add a new word</a>
-        
+    <div id="new-word">
+        <a class="btn btn-success" href="@routes.Application.newWord()"><i class="icon-file icon-white"> </i> Add a new word</a>
     </div>
-    
+
+    <form class="form-inline form-search" action="@link(0, "text")" method="GET">
+        <input type="text" class="search-query" id="searchbox" name="f" value="@currentFilter" placeholder="Filter ..."/>
+        <a onclick="parentNode.submit()" class="btn btn-primary"><i class="icon-search icon-white"> </i> Filter </a>
+    </form>
+
     @if(currentPage.getTotalRowCount == 0) {
         
-        <div class="well">
-            <em>Nothing to display</em>
+        <div class="alert alert-error">
+            <button class="close" data-dismiss="alert">×</button>
+            Nothing to display
         </div>
         
     } else {
         
-        <table>
+        <table class="table table-condensed words">
             <thead>
                 <tr>
-                    @header("text", "Text")
-                    @header("braille", "Braille")
-                    @header("expected", "Expected")
-                    <th/>
-                    <th/>
+                    <th>Text</th>
+                    <th>Braille</th>
                 </tr>
             </thead>
             <tbody>
                 @for(word <- currentPage.getList) {
                     <tr>
-                        <td><a href="@routes.Application.editWord(word.id)">@word.text</a></td>
-                        <td><span class="braille">@word.braille</span></td>
-                        <td><span class="braille">@word.expected</span></td>
                         <td>
-                            @if(word.expected.equals(word.braille)) {
-                                <span style="color: green"> ✔ </span>
-                            } else {
-                                <span style="color: red"> ✘ </span>
-                            }
+                            <a class="edit-word" href="@routes.Application.editWord(word.id)">
+                                <strong>@word.text</strong>
+                                <i class="icon-pencil"> </i>
+                            </a>
                         </td>
-                        <td><a href="@routes.Application.deleteWord(word.id)">(delete)</a></td>
+                        <td class="braille">
+                            <a class="edit-word" href="@routes.Application.editWord(word.id)">
+                                @if(word.expected.equals(word.braille)) {
+                                    <code class="correct-braille">@word.braille</code>
+                                } else {
+                                    <code class="wrong-braille">@word.braille</code>
+                                    &harr;
+                                    <code class="expected-braille">@word.expected</code>
+                                }
+                            </a>
+                        </td>
+                        <td><a href="@routes.Application.deleteWord(word.id)" title="Delete word"
+                                 class="btn btn-mini btn-warning"><i class="icon-trash icon-white"/></a></td>
                     </tr>
                 }
             </tbody>
         </table>
-
-        <div id="pagination" class="pagination">
+        <div class="span10 pager">
             <ul>
                 @if(currentPage.hasPrev) {
-                    <li class="prev">
+                    <li class="previous">
                         <a href="@link(currentPage.getPageIndex - 1, null)">&larr; Previous</a>
                     </li>
                 } else {
-                    <li class="prev disabled">
+                    <li class="previous disabled">
                         <a>&larr; Previous</a>
                     </li>
                 }
-                <li class="current">
-                    <a>Displaying @currentPage.getDisplayXtoYofZ(" to "," of ")</a>
-                </li>
                 @if(currentPage.hasNext) {
                     <li class="next">
                         <a href="@link(currentPage.getPageIndex + 1, null)">Next &rarr;</a>
@@ -112,4 +109,14 @@
             </ul>
         </div>
     }
+
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            $("a.edit-word").hover(function() {
+                $(this).closest("tr").find("a.edit-word i").css("visibility", "inherit");
+            },function(){
+                $(this).closest("tr").find("a.edit-word i").css("visibility", "hidden");
+           });
+        });
+    </script>
 }

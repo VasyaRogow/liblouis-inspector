@@ -1,61 +1,78 @@
+@(rules: Set[Rule], words: Set[Word])
+
 @main {
     
-    <h1>Confirm changes</h1>
+    <h2 class="page-header">Confirm your changes</h1>
 
-    <h2>Changed rules</h2>
+    <h3 class="page-header">Changed rules</h3>
 
-    <table>
-        <body>
-            @for(rule <- Rule.changedRules()) {
-                <tr>
-                    <td>
-                        <input type="checkbox" name="enabled" title="Enabled" disabled="disabled"
-                            @if(rule.enabled) { checked="checked" } />
-                    </td>
-                    <td>
-                        <span class="braille">@rule</span>
-                    </td>
-                </tr>
+    <fieldset class="rules">
+        <div class="control-group">
+            @for(rule <- rules) {
+                <form class="rule">
+                    <input type="checkbox" name="enabled" title="Enabled" disabled="disabled"
+                            @if(rule.enabled) { checked="checked" }>
+                        <code class="rule">@rule</code>
+                    </input>
+                </form>
             }
-        </body>
-    </table>
+        </div>
+    </fieldset>
 
-    <h2>Affected words</h2>
+    <h3 class="page-header">Affected words <span class="badge">@words.size()</span></h3>
 
-    <table>
+    <table class="table table-condensed words">
         <thead>
             <tr>
                 <th>Text</th>
-                <th>Old</th>
-                <th>New</th>
-                <th>Expected</th>
-                <th/>
+                <th>Braille</th>
             </tr>
         </thead>
         <tbody>
-            @for(word <- Word.changedWords()) {
+            @for(word <- words) {
                 <tr>
-                    <td><a href="@routes.Application.editWord(word.id)">@word.text</a></td>
-                    <td><span class="braille">@word.oldBraille</span></td>
-                    <td><span class="braille">@word.braille</span></td>
-                    <td><span class="braille">@word.expected</span></td>
                     <td>
-                        @if(word.expected.equals(word.braille)) {
-                            <span style="color: green"> ✔ </span>
-                        } else {
-                            <span style="color: red"> ✘ </span>
-                        }
+                        <a class="edit-word" href="@routes.Application.editWord(word.id)">
+                            <strong>@word.text</strong>
+                            <i class="icon-pencil"> </i>
+                        </a>
+                    </td>
+                    <td>
+                        <a class="edit-word" href="@routes.Application.editWord(word.id)">
+                            @if(word.expected.equals(word.oldBraille)) {
+                                <code class="corrent-braille">@word.oldBraille</code>
+                            } else {
+                                <code class="wrong-braille">@word.oldBraille</code>
+                            }
+                            &rarr;
+                            @if(word.expected.equals(word.braille)) {
+                                <code class="corrent-braille">@word.braille</code>
+                            } else {
+                                <code class="wrong-braille">@word.braille</code>
+                            }
+                            @if(!word.expected.equals(word.braille) && !word.expected.equals(word.oldBraille)) {
+                                &harr;
+                                <code class="expected-braille">@word.expected</code>
+                            }
+                        </a>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 
-    <form action="@routes.Application.confirmChanges()" method="POST">
-        <div class="actions">
-            <input type="submit" value="Confirm"> or 
-            <a href="@routes.Application.cancelChanges()" class="btn">Cancel</a>
-        </div>
+    <form class="form" action="@routes.Application.confirmChanges()" method="POST">
+        <input type="submit" value="Confirm" class="btn btn-warning">
+        or <a href="@routes.Application.cancelChanges()" class="btn">Cancel</a>
     </form>
 
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+            $("a.edit-word").hover(function() {
+                $(this).closest("tr").find("a.edit-word i").css("visibility", "inherit");
+            },function(){
+                $(this).closest("tr").find("a.edit-word i").css("visibility", "hidden");
+           });
+        });
+    </script>
 }
