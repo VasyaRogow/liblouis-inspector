@@ -1,5 +1,7 @@
 @(content: Html)
 
+@import helper._
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -19,6 +21,18 @@
                     <div class="span2">
                     </div>
                     <div class="span8">
+                        @if(flash.containsKey("done")) {
+                            <div class="alert alert-info">
+                                <button class="close" data-dismiss="alert">×</button>
+                                <strong>Done!</strong> @flash.get("done")
+                            </div>
+                        }
+                        @if(flash.containsKey("error")) {
+                            <div class="alert alert-error">
+                                <button class="close" data-dismiss="alert">×</button>
+                                <strong>Error!</strong> @flash.get("error")
+                            </div>
+                        }
                         @content
                     </div>
                 </div>

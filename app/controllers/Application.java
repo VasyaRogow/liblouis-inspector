@@ -55,8 +55,8 @@ public class Application extends Controller {
         Word word = wordForm.get();
         word.save();
         word.translate();
-        flash("success", "Word " + word.text + " has been added");
-        return GO_HOME;
+        flash("done", "Word " + word.text + " has been added");
+        return editWord(word.id);
     }
 
     public static Result editWord(Long wordId) {
@@ -73,7 +73,7 @@ public class Application extends Controller {
         Rule rule = Rule.find.byId(ruleId);
         if (rule != null) {
             rule.toggle();
-            flash("success", "Rule " + rule + " has been " + (rule.enabled?"en":"dis") + "abled");
+            flash("done", "Rule " + rule + " has been " + (rule.enabled?"en":"dis") + "abled");
         }
         return backToEditingWord();
     }
@@ -87,7 +87,7 @@ public class Application extends Controller {
             wordRule.delete();
         }
         word.delete();
-        flash("success", "Word " + word.text + " has been deleted");
+        flash("done", "Word " + word.text + " has been deleted");
         return GO_HOME;
     }
 

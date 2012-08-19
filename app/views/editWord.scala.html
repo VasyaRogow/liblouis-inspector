@@ -1,19 +1,10 @@
 @(word: Word, applied: Iterator[Rule], unapplied: Iterator[Rule])
 
-@import helper._
-
 @main {
     
     <h2 class="page-header">Edit word
         <span class="lead">@word.text</span>
     </h2>
-    
-    @if(flash.containsKey("success")) {
-        <div class="alert alert-info">
-            <button class="close" data-dismiss="alert">×</button>
-            <strong>Done!</strong> @flash.get("success")
-        </div>
-    }
 
     @if(word.expected.equals(word.braille)) {
         <p><span class="label">Braille</span> <code class="correct-braille">@word.braille</code></p>

@@ -46,6 +46,10 @@ a.edit-word > i {
     visibility: hidden;
 }
 
+div.alert {
+    margin-top: 8px;
+}
+
 .page-header {
     padding-bottom: 3px;
 }

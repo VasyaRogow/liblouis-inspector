@@ -10,13 +10,6 @@
         <span class="badge">@currentPage.getTotalRowCount</span>
     </h2>
 
-    @if(flash.containsKey("success")) {
-        <div class="alert alert-info">
-            <button class="close" data-dismiss="alert">×</button>
-            <strong>Done!</strong> @flash.get("success")
-        </div>
-    }
-
     <div id="new-word">
         <a class="btn btn-success" href="@routes.Application.newWord()"><i class="icon-file icon-white"> </i> Add a new word</a>
     </div>
