@@ -54,7 +54,7 @@ public class Application extends Controller {
         }
         Word word = wordForm.get();
         word.save();
-        word.translate();
+        word.init();
         flash("done", "Word " + word.text + " has been added");
         return editWord(word.id);
     }
@@ -115,7 +115,7 @@ public class Application extends Controller {
             rule.acceptChange();
         }
         for (Word word : Word.changedWords()) {
-            word.acceptChange();
+            word.confirmChange();
         }
         return GO_HOME;
     }

@@ -39,10 +39,10 @@
                     </td>
                     <td>
                         <a class="edit-word" href="@routes.Application.editWord(word.id)">
-                            @if(word.expected.equals(word.oldBraille)) {
-                                <code class="corrent-braille">@word.oldBraille</code>
+                            @if(word.expected.equals(word.prevBraille)) {
+                                <code class="corrent-braille">@word.prevBraille</code>
                             } else {
-                                <code class="wrong-braille">@word.oldBraille</code>
+                                <code class="wrong-braille">@word.prevBraille</code>
                             }
                             &rarr;
                             @if(word.expected.equals(word.braille)) {
@@ -50,7 +50,7 @@
                             } else {
                                 <code class="wrong-braille">@word.braille</code>
                             }
-                            @if(!word.expected.equals(word.braille) && !word.expected.equals(word.oldBraille)) {
+                            @if(!word.expected.equals(word.braille) && !word.expected.equals(word.prevBraille)) {
                                 &harr;
                                 <code class="expected-braille">@word.expected</code>
                             }

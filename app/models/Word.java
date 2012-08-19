@@ -25,15 +25,29 @@ public class Word extends Model implements Comparator<Rule> {
 
     public String braille;
 
-    public String oldBraille;
+    public String prevBraille;
 
-    public boolean changed;
+    public String origBraille;
 
     public Long getId() {
         return id;
     }
 
+    public void init() {
+        Set<Rule> disabledRules = Rule.find.where().eq("enabled", false).eq("newRule", false).findSet();
+        Set<Rule> newRules = Rule.find.where().eq("enabled", true).eq("newRule", true).findSet();
+        for (Rule rule : disabledRules) { rule.toggle(); }
+        for (Rule rule : newRules) { rule.toggle(); }
+        translate();
+        for (Rule rule : disabledRules) { rule.toggle(); }
+        for (Rule rule : newRules) { rule.toggle(); }
+        translate();
+        confirmChange();
+    }
+
     public void translate() throws RuntimeException {
+        if (prevBraille == null) { prevBraille = braille; }
+        if (origBraille == null) { origBraille = braille; }
         TranslationResult result = null;
         boolean again = false;
         do {
@@ -57,16 +71,13 @@ public class Word extends Model implements Comparator<Rule> {
                 }
             }
         } while(again);
-        if (oldBraille == null) {
-            oldBraille = braille;
-        }
-        changed = !oldBraille.equals(braille);
+        if (braille.equals(prevBraille)) { prevBraille = null; }
+        if (braille.equals(origBraille)) { origBraille = null; }
         save();
     }
 
-    public void acceptChange() {
-        oldBraille = braille;
-        changed = false;
+    public void confirmChange() {
+        prevBraille = null;
         save();
     }
 
@@ -96,7 +107,7 @@ public class Word extends Model implements Comparator<Rule> {
     public static Finder<Long,Word> find = new Finder<Long,Word>(Long.class, Word.class);
    
     public static Set<Word> changedWords() {
-        return find.where().eq("changed", true).findSet();
+        return find.where().isNotNull("prevBraille").findSet();
     }
 
     public static Page<Word> page(int page, int pageSize, String filter) {
