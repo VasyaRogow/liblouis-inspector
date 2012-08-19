@@ -18,7 +18,18 @@ public class Application extends Controller {
         return GO_HOME;
     }
 
+    public static Long editingWord = 0L;
+
+    public static Result backToEditingWord() {
+        if (editingWord > 0) {
+            return redirect(routes.Application.editWord(editingWord));
+        } else {
+            return GO_HOME;
+        }
+    }
+
     public static Result listWords(int page, String filter) {
+        editingWord = 0L;
         if (Rule.changedRules().size() > 0) {
             return redirect(routes.Application.viewChanges());
         }
@@ -49,6 +60,7 @@ public class Application extends Controller {
     }
 
     public static Result editWord(Long wordId) {
+        editingWord = wordId;
         Word word = Word.find.byId(wordId);
         if (word == null) {
             return badRequest("Could not find word");
@@ -57,13 +69,13 @@ public class Application extends Controller {
         return ok(views.html.editWord.render(word, word.getAppliedRules(), word.getUnappliedRules()));
     }
 
-    public static Result toggleRule(Long wordId) {
-        Rule rule = Rule.find.byId(Long.parseLong(request().body().asFormUrlEncoded().get("id")[0]));
+    public static Result toggleRule(Long ruleId) {
+        Rule rule = Rule.find.byId(ruleId);
         if (rule != null) {
             rule.toggle();
             flash("success", "Rule " + rule + " has been " + (rule.enabled?"en":"dis") + "abled");
         }
-        return editWord(wordId);
+        return backToEditingWord();
     }
 
     public static Result deleteWord(Long wordId) {

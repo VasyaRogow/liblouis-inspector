@@ -29,8 +29,7 @@
         <fieldset class="rules">
             <div class="control-group">
                 @for(rule <- applied) {
-                    <form class="rule" action="@routes.Application.toggleRule(word.id)" method="POST">
-                        <input type="hidden" name="id" value="@rule.id"/>
+                    <form class="rule" action="@routes.Application.toggleRule(rule.id)" method="POST">
                         <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
                                 @if(rule.isReadOnly()) { disabled="disabled" }
                             @if(rule.enabled) { checked="checked" }>
@@ -50,8 +49,7 @@
         <fieldset class="rules">
             <div class="control-group">
                 @for(rule <- unapplied) {
-                    <form class="rule" action="@routes.Application.toggleRule(word.id)" method="POST">
-                        <input type="hidden" name="id" value="@rule.id"/>
+                    <form class="rule" action="@routes.Application.toggleRule(rule.id)" method="POST">
                         <input type="checkbox" onclick="parentNode.submit()" name="enabled" title="Toggle rule"
                                 @if(rule.isReadOnly()) { disabled="disabled" }
                                 @if(rule.enabled) { checked="checked" }>
