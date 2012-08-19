@@ -11,21 +11,20 @@ import models.*;
 public class Application extends Controller {
 
     public static Result GO_HOME = redirect(
-        routes.Application.listWords(0, "text", "asc", "")
+        routes.Application.listWords(0, "")
     );
 
     public static Result index() {
         return GO_HOME;
     }
 
-    public static Result listWords(int page, String sortBy, String order, String filter) {
+    public static Result listWords(int page, String filter) {
         if (Rule.changedRules().size() > 0) {
             return redirect(routes.Application.viewChanges());
         }
         return ok(
             views.html.listWords.render(
-                Word.page(page, 10, sortBy, order, filter),
-                sortBy, order, filter
+                Word.page(page, 10, filter), filter
             )
         );
     }

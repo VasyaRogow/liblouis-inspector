@@ -1,6 +1,6 @@
 GET     /                           controllers.Application.index()
 
-GET     /words                      controllers.Application.listWords(p:Int ?= 0, s ?= "text", o ?= "asc", f ?= "")
+GET     /words                      controllers.Application.listWords(p:Int ?= 0, f ?= "")
 GET     /words/new                  controllers.Application.newWord()
 POST    /words/new                  controllers.Application.saveWord()
 GET     /words/:id                  controllers.Application.editWord(id:Long)

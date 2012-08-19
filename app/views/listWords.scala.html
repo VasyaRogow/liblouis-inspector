@@ -1,25 +1,7 @@
-@(currentPage: Page[Word], currentSortBy: String, currentOrder: String, currentFilter: String)
+@(currentPage: Page[Word], currentFilter: String)
 
-@link(newPage:Int, newSortBy:String) = @{
-    
-    var sortBy = currentSortBy
-    var order = currentOrder
-    
-    if(newSortBy != null) {
-        sortBy = newSortBy
-        if(currentSortBy == newSortBy) {
-            if(currentOrder == "asc") {
-                order = "desc"
-            } else {
-                order = "asc"
-            }
-        } else {
-            order = "asc"
-        }
-    }
-    
-    routes.Application.listWords(newPage, sortBy, order, currentFilter)
-    
+@page(newPage:Int) = @{
+    routes.Application.listWords(newPage, currentFilter)
 }
 
 @main {
@@ -39,7 +21,7 @@
         <a class="btn btn-success" href="@routes.Application.newWord()"><i class="icon-file icon-white"> </i> Add a new word</a>
     </div>
 
-    <form class="form-inline form-search" action="@link(0, "text")" method="GET">
+    <form class="form-inline form-search" action="@page(0)" method="GET">
         <input type="text" class="search-query" id="searchbox" name="f" value="@currentFilter" placeholder="Filter ..."/>
         <a onclick="parentNode.submit()" class="btn btn-primary"><i class="icon-search icon-white"> </i> Filter </a>
     </form>
@@ -90,7 +72,7 @@
             <ul>
                 @if(currentPage.hasPrev) {
                     <li class="previous">
-                        <a href="@link(currentPage.getPageIndex - 1, null)">&larr; Previous</a>
+                        <a href="@page(currentPage.getPageIndex - 1)">&larr; Previous</a>
                     </li>
                 } else {
                     <li class="previous disabled">
@@ -99,7 +81,7 @@
                 }
                 @if(currentPage.hasNext) {
                     <li class="next">
-                        <a href="@link(currentPage.getPageIndex + 1, null)">Next &rarr;</a>
+                        <a href="@page(currentPage.getPageIndex + 1)">Next &rarr;</a>
                     </li>
                 } else {
                     <li class="next disabled">

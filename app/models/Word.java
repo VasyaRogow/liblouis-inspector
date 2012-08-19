@@ -99,11 +99,10 @@ public class Word extends Model implements Comparator<Rule> {
         return find.where().eq("changed", true).findSet();
     }
 
-    public static Page<Word> page(int page, int pageSize, String sortBy, String order, String filter) {
+    public static Page<Word> page(int page, int pageSize, String filter) {
         return 
             find.where()
                 .ilike("text", "%" + filter + "%")
-                .orderBy(sortBy + " " + order)
                 .findPagingList(pageSize)
                 .getPage(page);
     }
