@@ -19,9 +19,6 @@ public class Rule extends Model {
 
     @Id
     public Long id;
-    
-    @Constraints.Required
-    public boolean enabled;
 
     @Constraints.Required
     public String opcode;
@@ -31,6 +28,10 @@ public class Rule extends Model {
 
     @Constraints.Required
     public String column2;
+
+    public boolean enabled;
+
+    public boolean newRule;
 
     public boolean changed;
 
@@ -54,24 +55,27 @@ public class Rule extends Model {
         return true;
     }
 
-    public boolean isReadOnly() {
-        if (!opcode.equals("word") &&
-            !opcode.equals("always") &&
-            !opcode.equals("begword") &&
-            !opcode.equals("endword") &&
-            !opcode.equals("midword") &&
-            !opcode.equals("midendword") &&
-            !opcode.equals("begmidword") &&
-            !opcode.equals("partword") &&
-            !opcode.equals("lowword") &&
-            !opcode.equals("sufword") &&
-            !opcode.equals("prfword")) {
-            return true;
-        }
-        return !rulesMap.containsKey(id);
+    public static List<String> opcodes = new ArrayList<String>();
+
+    static {
+        opcodes.add("word");
+        opcodes.add("always");
+        opcodes.add("begword");
+        opcodes.add("endword");
+        opcodes.add("midword");
+        opcodes.add("midendword");
+        opcodes.add("begmidword");
+        opcodes.add("partword");
+        opcodes.add("lowword");
+        opcodes.add("sufword");
+        opcodes.add("prfword");
     }
 
-    public void acceptChange() {
+    public boolean isReadOnly() {
+        return (!opcodes.contains(opcode) || !rulesMap.containsKey(id));
+    }
+
+    public void confirmChange() {
         changed = false;
         save();
     }
@@ -82,6 +86,10 @@ public class Rule extends Model {
 
     public static Set<Rule> changedRules() {
         return find.where().eq("changed", true).findSet();
+    }
+
+    public static void clearCache() {
+        rulesMap.clear();
     }
 
     public static Rule getRule(TranslationRule nativeRule) {

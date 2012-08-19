@@ -14,11 +14,13 @@ header h1 {
     font-size: 30px;
 }
 
-#new-word {
+#new-word,
+#new-rule {
     position: relative;
 }
 
-#new-word a {
+#new-word a,
+#new-rule a {
     position: absolute;
     right: 0;
 }

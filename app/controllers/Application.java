@@ -1,5 +1,10 @@
 package controllers;
 
+import java.io.File;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 import play.mvc.*;
@@ -8,7 +13,45 @@ import play.*;
 
 import models.*;
 
+import com.sun.jna.Pointer;
+
+import org.liblouis.*;
+import org.liblouis.util.Environment;
+
 public class Application extends Controller {
+
+    public static Translator liblouis;
+    private static File newTable;
+    private static String liblouisTables;
+
+    static {
+        try {
+            File tablePath = new File(
+                    System.getProperty("java.io.tmpdir") + File.separator + "liblouis-inspector");
+            if (!tablePath.isDirectory()) { tablePath.mkdir(); }
+            Environment.setLouisTablePath(tablePath.getAbsolutePath());
+            newTable = new File(tablePath.getAbsolutePath() + File.separator + "new_rules");
+            if (!newTable.exists()) { newTable.createNewFile(); }
+            liblouisTables = "en-US-g2.ctb" + "," + newTable.getName();
+            writeNewRules();
+            liblouis = new Translator(liblouisTables);
+        } catch (Exception e) {
+            throw new RuntimeException("Error during initialization", e);
+        }
+    }
+
+    private static void writeNewRules() {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(newTable));
+            for (Rule rule : Rule.find.where().eq("newRule", true).findSet()) {
+                writer.write(rule.toString());
+                writer.newLine();
+            }
+            writer.close();
+            Rule.clearCache();
+            LouisLibrary.INSTANCE.lou_free();
+        } catch (IOException e) {}
+    }
 
     public static Result GO_HOME = redirect(
         routes.Application.listWords(0, "")
@@ -92,11 +135,31 @@ public class Application extends Controller {
     }
 
     public static Result newRule() {
-        return badRequest("Not implemented yet");
+        Form<Rule> ruleForm = form(Rule.class);
+        return ok(
+            views.html.newRule.render(ruleForm)
+        );
     }
 
     public static Result saveRule() {
-        return badRequest("Not implemented yet");
+        Form<Rule> ruleForm = form(Rule.class).bindFromRequest();
+        if(ruleForm.hasErrors()) {
+            return badRequest(views.html.newRule.render(ruleForm));
+        }
+        Rule rule = ruleForm.get();
+        rule.enabled = true;
+        rule.newRule = true;
+        rule.changed = true;
+        rule.save();
+        writeNewRules();
+        if (LouisLibrary.INSTANCE.lou_getTable(liblouisTables) == Pointer.NULL) {
+            rule.delete();
+            writeNewRules();
+            flash("error", "Rule " + rule.toString() + " could not be compiled");
+            return badRequest(views.html.newRule.render(ruleForm));
+        }
+        flash("done", "Rule " + rule.toString() + " has been added");
+        return backToEditingWord();
     }
 
     public static Result viewChanges() {
@@ -112,7 +175,7 @@ public class Application extends Controller {
 
     public static Result confirmChanges() {
         for (Rule rule : Rule.changedRules()) {
-            rule.acceptChange();
+            rule.confirmChange();
         }
         for (Word word : Word.changedWords()) {
             word.confirmChange();

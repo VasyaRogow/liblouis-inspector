@@ -1,0 +1,28 @@
+@(ruleForm: Form[Rule])
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.render) }
+
+@main {
+    
+    <h2 class="page-header">Add a rule</h2>
+    
+    <form class="form form-horizontal" action="@routes.Application.saveRule()" method="POST">
+        <fieldset>
+            @select(
+                ruleForm("opcode"), 
+                options(Rule.opcodes), 
+                '_label -> "Opcode", '_default -> "-- Choose an opcode --",
+                '_showConstraints -> false
+            )
+            @inputText(ruleForm("column1"), '_label -> "Column 1")
+            @inputText(ruleForm("column2"), '_label -> "Column 2")
+        </fieldset>
+        
+        <div class="actions">
+            <input type="submit" value="Add this rule" class="btn btn-primary"> or 
+            <a href="@routes.Application.listWords()" class="btn">Cancel</a> 
+        </div>
+    </form>
+}

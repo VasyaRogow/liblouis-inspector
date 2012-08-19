@@ -13,6 +13,10 @@
         <p><span class="label">Expected</span> <code class="expected-braille">@word.expected</code></p>
     }
 
+    <div id="new-rule">
+        <a class="btn btn-success" href="@routes.Application.newRule()"><i class="icon-file icon-white"> </i> Add a new rule</a>
+    </div>
+
     @if(applied.hasNext()) {
 
         <h3 class="page-header">Applied rules</h3>
@@ -45,7 +49,7 @@
                                 @if(rule.isReadOnly()) { disabled="disabled" }
                                 @if(rule.enabled) { checked="checked" }>
                             <code class="rule">@rule</code>
-                            @if(rule.changed) { <i class="icon-exclamation-sign"> </i> }
+                            @if(rule.changed) { <span class="badge"> changed </span> }
                         </input>
                     </form>
                 }
@@ -56,6 +60,6 @@
     <form class="form" action="@routes.Application.index()" method="GET">
         <input type="submit" value="Apply changes" class="btn btn-warning"
                 @if(Rule.changedRules().size == 0) { disabled="disabled" }>
-        or <a href="@routes.Application.cancelChanges()" class="btn">Cancel</a>
+        or <a href="@routes.Application.cancelChanges()" class="btn">Back</a>
     </form>
 }

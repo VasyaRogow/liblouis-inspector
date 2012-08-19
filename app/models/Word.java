@@ -3,6 +3,8 @@ package models;
 import java.util.*;
 import javax.persistence.*;
 
+import controllers.Application;
+
 import play.db.ebean.*;
 import play.data.format.*;
 import play.data.validation.*;
@@ -52,7 +54,7 @@ public class Word extends Model implements Comparator<Rule> {
         boolean again = false;
         do {
             try {
-                result = liblouis.translate(text);
+                result = Application.liblouis.translate(text);
             } catch (Exception e) {
                 throw new RuntimeException("Problem with liblouis", e);
             }
@@ -101,8 +103,6 @@ public class Word extends Model implements Comparator<Rule> {
     public int compare(Rule rule1, Rule rule2) {
         return rule1.toString().compareTo(rule2.toString());
     }
-
-    private static final Translator liblouis = new Translator("en-US-g2.ctb");
 
     public static Finder<Long,Word> find = new Finder<Long,Word>(Long.class, Word.class);
    
